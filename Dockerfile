@@ -1,7 +1,7 @@
 # Use official Python base image
 FROM python:3.10-slim
 
-# Install necessary OS packages
+# Install necessary OS packages for Chrome
 RUN apt-get update && apt-get install -y \
     curl \
     unzip \
@@ -28,7 +28,7 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Chrome
+# Install Google Chrome
 RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
     echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list && \
     apt-get update && \
@@ -39,22 +39,16 @@ RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add
 WORKDIR /app
 
 # Copy project files
-COPY . /app
-
-
-# Add unzip tool
-RUN apt-get update && apt-get install -y unzip && rm -rf /var/lib/apt/lists/*
-
 COPY . .
 
-# Unzip the wa_profile to use it in headless Chrome
+# Unzip wa_profile.zip into wa_profile/ directory
 RUN unzip wa_profile.zip -d wa_profile
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Make sure wa_profile directory exists
-RUN mkdir -p /app/wa_profile
+# Expose port for uvicorn to work (Render expects this)
+EXPOSE 10000
 
-# Run the bot
-CMD ["python", "whatsapp_bot.py"]
+# Start FastAPI app via uvicorn
+CMD ["uvicorn", "whatsapp_bot:app", "--host", "0.0.0.0", "--port", "10000"]
