@@ -3,6 +3,7 @@ import traceback
 import os
 import random
 import urllib.parse
+import zipfile
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -12,6 +13,19 @@ import uvicorn
 import threading
 
 app = FastAPI()
+
+# 🔓 Auto-extract the wa_profile.zip file
+zip_path = 'wa_profile.zip'
+extract_to = 'wa_profile'
+
+if not os.path.exists(extract_to):
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(extract_to)
+        print("✅ wa_profile.zip extracted successfully.")
+    except Exception as e:
+        print("❌ Failed to extract wa_profile.zip:")
+        traceback.print_exc()
 
 def run_bot():
     try:
@@ -80,5 +94,5 @@ def run_bot():
 def root():
     return {"status": "Bot running in Render!"}
 
-# Run the bot in a separate thread when the app starts
+# 🔁 Run the bot in a separate thread when the app starts
 threading.Thread(target=run_bot).start()
