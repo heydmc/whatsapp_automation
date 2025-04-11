@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: whatsapp-bot
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeploy: false
+    envVars:
+      - key: PORT
+        value: 10000
